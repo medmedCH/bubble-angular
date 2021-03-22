@@ -3,6 +3,10 @@ import { ROUTES } from '../sidebar/sidebar.component';
 import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common';
 import { Router } from '@angular/router';
 import Chart from 'chart.js';
+import { KeycloakService } from 'keycloak-angular';
+import {Observable} from 'rxjs';
+import {CustomerInfo} from '../../../models/user.info';
+import {CustomerStore} from '../../../stores/customer.store';
 
 @Component({
   selector: 'app-navbar',
@@ -17,13 +21,16 @@ export class NavbarComponent implements OnInit {
     private sidebarVisible: boolean;
 
     public isCollapsed = true;
+    customer$: Observable<CustomerInfo>;
 
-    constructor(location: Location,  private element: ElementRef, private router: Router) {
+    constructor(private customerStore: CustomerStore , location: Location,  private element: ElementRef, private router: Router , private keycloakService: KeycloakService)
+    {
       this.location = location;
           this.sidebarVisible = false;
+      this.customerStore.init();
     }
-
-    ngOnInit(){
+    ngOnInit() {
+      this.customer$ = this.customerStore.getAll$();
       this.listTitles = ROUTES.filter(listTitle => listTitle);
       const navbar: HTMLElement = this.element.nativeElement;
       this.toggleButton = navbar.getElementsByClassName('navbar-toggler')[0];
@@ -66,7 +73,7 @@ export class NavbarComponent implements OnInit {
         html.classList.add('nav-open');
 
         this.sidebarVisible = true;
-    };
+    }
     sidebarClose() {
         const html = document.getElementsByTagName('html')[0];
         this.toggleButton.classList.remove('toggled');
@@ -152,4 +159,11 @@ export class NavbarComponent implements OnInit {
       }
       return 'Dashboard';
     }
+
+
+
+  async doLogout() {
+    await this.router.navigate(['/']);
+    await this.customerStore.logout();
+  }
 }

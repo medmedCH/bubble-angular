@@ -9,15 +9,17 @@ import {TypographyComponent} from './typography/typography.component';
 import {MapsComponent} from './maps/maps.component';
 import {NotificationsComponent} from './notifications/notifications.component';
 import {UpgradeComponent} from './upgrade/upgrade.component';
+import {AuthGuard} from '../app-auth.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: BackComponent,
     children: [
-      {path: '', component: DashboardComponent},
+      {path: '', component: DashboardComponent ,
+        canActivate: [AuthGuard], data: { roles: ['admin'] }},
       { path: 'dashboard',      component: DashboardComponent },
-      { path: 'user-profile',   component: UserProfileComponent },
+      { path: 'user-profile',   component: UserProfileComponent ,canActivate: [AuthGuard],data: { roles: ['admin'] }},
       { path: 'table-list',     component: TableListComponent },
       { path: 'typography',     component: TypographyComponent },
       { path: 'icons',          component: IconsComponent },
